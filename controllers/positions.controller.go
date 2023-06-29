@@ -10,7 +10,6 @@ import (
 
 func CreatePosition(c echo.Context) error {
 	db := db.DB()
-	db.AutoMigrate(&models.Positions{})
 	p := new(models.Positions)
 
 	if err := c.Bind(p); err != nil {

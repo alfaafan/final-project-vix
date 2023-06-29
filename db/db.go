@@ -2,6 +2,7 @@ package db
 
 import (
 	"finalProject/config"
+	"finalProject/models"
 	"fmt"
 
 	"gorm.io/driver/postgres"
@@ -21,6 +22,8 @@ func DatabaseInit() {
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", host, user, password, dbName, port)
 	database, e = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	database.AutoMigrate(&models.Company{}, &models.Employees{}, &models.Positions{}, &models.Transaction{})
 
 	if e != nil {
 		panic(e)

@@ -4,7 +4,9 @@ import "gorm.io/gorm"
 
 type Transaction struct {
 	gorm.Model
-	transactionType string
-	amount uint64
-	note string
+	Type string
+	Amount uint64
+	Note string
+	CompaniesID uint 
+	Company Company `gorm:"foreignKey:CompaniesID"`
 }

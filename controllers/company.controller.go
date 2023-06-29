@@ -12,9 +12,8 @@ import (
 
 func CreateCompany(c echo.Context) error {
 	db := db.DB()
-	db.AutoMigrate(&models.Company{})
 
-	company :=new(models.Company)
+	company := new(models.Company)
 
 	if err := c.Bind(company); err != nil {
 		return c.JSON(400, map[string]string{"error": err.Error()})
@@ -34,15 +33,37 @@ func CreateCompany(c echo.Context) error {
 func TopUpBalance(c echo.Context) error {
 	db := db.DB()
 
-	company := new(models.Company)
+	transaction := new(models.Transaction)
+    if err := c.Bind(transaction); err != nil {
+        return c.String(http.StatusBadRequest, "Invalid request")
+    }
 
-	err := db.First(company, c.Param("id")).Error
+	tx := db.Begin()
+
+	if err := tx.Create(&transaction).Error; err != nil {
+		tx.Rollback()
+		return c.JSON(http.StatusInternalServerError, err) 
+	}
+
+	company := new(models.Company)
+	err := tx.First(&company, transaction.CompaniesID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			tx.Rollback()
 			return c.JSON(404, map[string]string{"error": "Company not found"})
 		}
+		tx.Rollback()
 		return c.JSON(500, map[string]string{"error": "Internal Server Error"})
 	}
+
+	company.Balance += transaction.Amount
+
+	if err := tx.Save(&company).Error; err != nil {
+		tx.Rollback()
+        return c.String(http.StatusInternalServerError, "Failed to update balance")
+    }
+
+	tx.Commit()
 
 	response := map[string]interface{} {
 		"success": true,

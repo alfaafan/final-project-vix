@@ -12,7 +12,6 @@ import (
 
 func CreateEmployee(c echo.Context) error {
 db := db.DB()
-db.AutoMigrate(&models.Employees{})	
 
 employee := new(models.Employees)
 
@@ -89,6 +88,49 @@ func DeleteEmployee(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-// func WithdrawSalary(c echo.Context) error {
-	
-// }
+func WithdrawSalary(c echo.Context) error {
+	db := db.DB()
+
+	employee := new(models.Employees)
+	if err := c.Bind(employee); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	if err := db.First(&employee, employee.ID).Error; err != nil {
+        return c.String(http.StatusNotFound, "Employee not found")
+    }
+
+	position := new(models.Positions)
+	if err := db.First(&position, employee.PositionsID).Error; err != nil {
+		return c.String(http.StatusNotFound, "Position not found")
+	}
+
+	withdrawalAmount := position.Salary
+	company := new(models.Company)
+	if err := db.First(&company).Error; err != nil {
+        return c.String(http.StatusInternalServerError, "Failed to retrieve company balance")
+    }
+    company.Balance -= withdrawalAmount
+
+	tx := db.Begin()
+
+	if err := tx.Save(&company).Error; err != nil {
+        tx.Rollback()
+        return c.String(http.StatusInternalServerError, "Failed to update company balance")
+    }
+
+	transaction := models.Transaction{
+		Type: "Debit",
+		Amount: withdrawalAmount,
+		Note: "Withdraw Salary",
+		CompaniesID: 1,
+	}
+	if err := tx.Preload("Company").Create(&transaction).Error; err != nil {
+        tx.Rollback()
+        return c.String(http.StatusInternalServerError, err.Error())
+    }
+
+	tx.Commit()
+
+	return c.JSON(http.StatusOK, transaction)
+}
