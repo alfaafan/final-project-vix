@@ -1,7 +1,0 @@
-{
-  "DB_USERNAME": "postgres",
-  "DB_PASSWORD": "meimisaki",
-  "DB_PORT": "5432",
-  "DB_HOST": "127.0.0.1",
-  "DB_NAME": "final_project_vix"
-}
