@@ -1,6 +1,7 @@
 package db
 
 import (
+	"finalProject/config"
 	"fmt"
 
 	"gorm.io/driver/postgres"
@@ -12,13 +13,13 @@ var e error
 
 
 func DatabaseInit() {
-	host := "localhost"
-	user := "postgres"
-	password := "meimisaki"
-	dbName := "final_project_vix"
-	port := 5432
+	host := config.GetConfig().DB_HOST
+	user := config.GetConfig().DB_USERNAME
+	password := config.GetConfig().DB_PASSWORD
+	dbName := config.GetConfig().DB_NAME
+	port := config.GetConfig().DB_PORT
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Jakarta", host, user, password, dbName, port)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", host, user, password, dbName, port)
 	database, e = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if e != nil {

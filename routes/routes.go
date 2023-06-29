@@ -21,9 +21,17 @@ func Init() *echo.Echo {
 
 	employeeRoute := e.Group("/employee")
 	employeeRoute.POST("/", controllers.CreateEmployee)
+	// employeeRoute.POST("/withdraw", controllers.WithdrawSalary)
 	employeeRoute.GET("/:id", controllers.GetEmployee)
 	employeeRoute.GET("/", controllers.GetAllEmployee)
 	employeeRoute.DELETE("/:id", controllers.DeleteEmployee)
+
+	companyRoute := e.Group("/company")
+	companyRoute.POST("/", controllers.CreateCompany)
+	companyRoute.PUT("/topup", controllers.TopUpBalance)
+	companyRoute.GET("/", controllers.GetCompany)
+
+
 
 	return e
 }

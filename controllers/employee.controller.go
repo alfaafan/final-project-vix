@@ -42,7 +42,13 @@ func GetEmployee(c echo.Context) error {
 		return c.JSON(500, map[string]string{"error": "Internal server error"})
 	}
 
-	return c.JSON(200, employee)
+	response := map[string]interface{} {
+		"success": true,
+		"message": "Success",
+		"data": employee,
+	}
+
+	return c.JSON(200, response)
 }
 
 func GetAllEmployee(c echo.Context) error {
@@ -82,3 +88,7 @@ func DeleteEmployee(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response)
 }
+
+// func WithdrawSalary(c echo.Context) error {
+	
+// }
